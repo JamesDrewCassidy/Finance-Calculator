@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="User-Friendly All-in-One Finance Calculator" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All-in-One Finance Calculator (Categorized)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 10px;
+      line-height: 1.5;
+    }
+    h1 {
+      text-align: center;
+    }
+    .calculator-picker {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .calculator-picker label {
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-right: 1rem;
+    }
+    .calculator-section {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      display: none; /* hidden by default */
+    }
+    .calculator-section h2 {
+      margin-top: 0;
+    }
+    .field-group {
+      margin-bottom: 1rem;
+    }
+    .field-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      padding: 0.4rem;
+      box-sizing: border-box;
+      margin-bottom: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      margin: 0.2rem 0;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 0.8rem;
+      white-space: pre-wrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 0.5rem;
+      text-align: right;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .remove-row-btn {
+      cursor: pointer;
+      background-color: #c00;
+      color: #fff;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+    }
+    .remove-row-btn:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>All-In-One Finance Calculator</h1>
+  <p style="text-align:center;">
+    Pick a calculator from the dropdown below. Each calculation is done locally via JavaScript.
+  </p>
+
+  <!-- Dropdown for selecting calculator -->
+  <div class="calculator-picker">
+    <label for="calcSelect">Choose Calculator:</label>
+    <select id="calcSelect">
+      <option value="">-- Select --</option>
+
+      <optgroup label="Loan & Mortgage Calculators">
+        <option value="mortgage">Mortgage Payment</option>
+        <option value="amortization">Loan Amortization</option>
+        <option value="ltv">Loan-to-Value (LTV)</option>
+        <option value="weightedLoanRate">Weighted Avg Interest Rate (Loans)</option>
+        <option value="weightedLoanMaturity">Weighted Average Maturity (Loans)</option>
+      </optgroup>
+
+      <optgroup label="Investment & Time Value of Money">
+        <option value="compoundInterest">Compound Interest</option>
+        <option value="simpleInterest">Simple Interest</option>
+        <option value="inflation">Inflation</option>
+        <option value="retirement">Retirement (Monthly Contributions)</option>
+        <option value="payback">Payback Period</option>
+        <option value="npv">Net Present Value (NPV)</option>
+        <option value="irr">Internal Rate of Return (IRR)</option>
+      </optgroup>
+
+      <optgroup label="Bond & Security Tools">
+        <option value="bondPrice">Bond Pricing</option>
+        <option value="bondYTM">Yield to Maturity (YTM)</option>
+        <option value="tBillYield">Treasury Bill Discount Yield</option>
+      </optgroup>
+
+      <optgroup label="Business & Ratios">
+        <option value="roi">Return on Investment (ROI)</option>
+        <option value="breakEven">Break-Even Point</option>
+        <option value="dti">Debt-to-Income (DTI)</option>
+        <option value="dscr">Debt Service Coverage Ratio (DSCR)</option>
+        <option value="markupMargin">Mark-up & Margin</option>
+        <option value="liquidityRatios">Current & Quick Ratio</option>
+        <option value="ebitda">EBITDA & Debt/EBITDA</option>
+        <option value="dso">Days Sales Outstanding (DSO)</option>
+        <option value="dpo">Days Payable Outstanding (DPO)</option>
+      </optgroup>
+
+      <optgroup label="Misc Tools">
+        <option value="currencyConversion">Currency Conversion</option>
+        <option value="ear">Effective Annual Rate (EAR)</option>
+        <option value="wacc">Weighted Average Cost of Capital (WACC)</option>
+      </optgroup>
+
+    </select>
+  </div>
+
+  <!-- =============== Calculator Sections (Hidden by Default) =============== -->
+
+  <!-- Weighted Average Interest Rate (MULTIPLE LOANS) -->
+  <div id="weightedLoanRate" class="calculator-section">
+    <h2>Weighted Average Interest Rate (Multiple Loans)</h2>
+    <p><em>Enter each loan’s principal and annual interest rate below.</em></p>
+    
+    <table id="loanRateTable">
+      <thead>
+        <tr>
+          <th>Principal</th>
+          <th>Interest Rate (%)</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be dynamically added here -->
+      </tbody>
+    </table>
+
+    <button onclick="addLoanRateRow()">Add Loan</button>
+    <button onclick="calculateWeightedLoanRate()">Calculate Weighted Rate</button>
+    <div class="result" id="resultWeightedLoanRate"></div>
+  </div>
+
+  <!-- Weighted Average Maturity (MULTIPLE LOANS) -->
+  <div id="weightedLoanMaturity" class="calculator-section">
+    <h2>Weighted Average Maturity (Multiple Loans)</h2>
+    <p><em>Enter each loan’s principal and maturity (in years) below.</em></p>
+
+    <table id="loanMaturityTable">
+      <thead>
+        <tr>
+          <th>Principal</th>
+          <th>Maturity (Years)</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be dynamically added here -->
+      </tbody>
+    </table>
+
+    <button onclick="addLoanMaturityRow()">Add Loan</button>
+    <button onclick="calculateWeightedLoanMaturity()">Calculate Weighted Maturity</button>
+    <div class="result" id="resultWeightedLoanMaturity"></div>
+  </div>
+
+  <!-- 1) Currency Conversion -->
+  <div id="currencyConversion" class="calculator-section">
+    <h2>Currency Conversion</h2>
+    <p><em>Rates are approximate. Adjust or fetch real-time data if needed.</em></p>
+    <div class="field-group">
+      <label for="amountCurrencyA">Amount:</label>
+      <input type="number" id="amountCurrencyA" placeholder="Enter amount" />
+    </div>
+    <div class="field-group">
+      <label for="selectCurrencyA">From Currency:</label>
+      <select id="selectCurrencyA">
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label for="selectCurrencyB">To Currency:</label>
+      <select id="selectCurrencyB">
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
+    </div>
+    <button onclick="convertCurrency()">Convert</button>
+    <div class="result" id="resultCurrencyConversion"></div>
+  </div>
+
+  <!-- 2) Inflation Calculator -->
+  <div id="inflation" class="calculator-section">
+    <h2>Inflation</h2>
+    <p><em>Future value of a present amount, given an annual inflation rate.</em></p>
+    <div class="field-group">
+      <label for="inflationAmount">Initial Amount:</label>
+      <input type="number" id="inflationAmount" placeholder="1000" />
+    </div>
+    <div class="field-group">
+      <label for="inflationRate">Annual Inflation Rate (%):</label>
+      <input type="number" id="inflationRate" step="0.01" placeholder="3.0" />
+    </div>
+    <div class="field-group">
+      <label for="inflationYears">Number of Years:</label>
+      <input type="number" id="inflationYears" placeholder="10" />
+    </div>
+    <button onclick="calculateInflation()">Calculate Future Value</button>
+    <div class="result" id="resultInflation"></div>
+  </div>
+
+  <!-- 3) Compound Interest -->
+  <div id="compoundInterest" class="calculator-section">
+    <h2>Compound Interest</h2>
+    <p><em>Calculate final value of an investment or loan with compounding.</em></p>
+    <div class="field-group">
+      <label for="principal">Principal (Initial Amount):</label>
+      <input type="number" id="principal" placeholder="5000" />
+    </div>
+    <div class="field-group">
+      <label for="annualInterestRate">Annual Interest Rate (%):</label>
+      <input type="number" id="annualInterestRate" step="0.01" placeholder="5.0" />
+    </div>
+    <div class="field-group">
+      <label for="compoundTimes">Times Compounded per Year:</label>
+      <input type="number" id="compoundTimes" placeholder="12" />
+    </div>
+    <div class="field-group">
+      <label for="years">Number of Years:</label>
+      <input type="number" id="years" placeholder="10" />
+    </div>
+    <button onclick="calculateCompoundInterest()">Calculate</button>
+    <div class="result" id="resultCompound"></div>
+  </div>
+
+  <!-- Simple Interest -->
+  <div id="simpleInterest" class="calculator-section">
+    <h2>Simple Interest</h2>
+    <p><em>Quick calculation: Interest = P * r * t.</em></p>
+    <div class="field-group">
+      <label for="simplePrincipal">Principal (Initial Amount):</label>
+      <input type="number" id="simplePrincipal" placeholder="1000" />
+    </div>
+    <div class="field-group">
+      <label for="simpleRate">Annual Interest Rate (%):</label>
+      <input type="number" id="simpleRate" step="0.01" placeholder="5.0" />
+    </div>
+    <div class="field-group">
+      <label for="simpleTime">Time in Years:</label>
+      <input type="number" id="simpleTime" placeholder="2" />
+    </div>
+    <button onclick="calculateSimpleInterest()">Calculate Simple Interest</button>
+    <div class="result" id="resultSimpleInterest"></div>
+  </div>
+
+  <!-- 4) Mortgage Payment -->
+  <div id="mortgage" class="calculator-section">
+    <h2>Mortgage Payment</h2>
+    <p><em>Monthly payment for a fixed-rate mortgage.</em></p>
+    <div class="field-group">
+      <label for="mortgagePrincipal">Loan Amount (Principal):</label>
+      <input type="number" id="mortgagePrincipal" placeholder="300000" />
+    </div>
+    <div class="field-group">
+      <label for="mortgageAnnualRate">Annual Interest Rate (%):</label>
+      <input type="number" id="mortgageAnnualRate" step="0.01" placeholder="4.0" />
+    </div>
+    <div class="field-group">
+      <label for="mortgageYears">Term (Years):</label>
+      <input type="number" id="mortgageYears" placeholder="30" />
+    </div>
+    <button onclick="calculateMortgage()">Calculate Monthly Payment</button>
+    <div class="result" id="resultMortgage"></div>
+  </div>
+
+  <!-- 5) Loan Amortization -->
+  <div id="amortization" class="calculator-section">
+    <h2>Loan Amortization</h2>
+    <p><em>Breakdown of each payment over the loan term.</em></p>
+    <div class="field-group">
+      <label for="amortPrincipal">Loan Amount (Principal):</label>
+      <input type="number" id="amortPrincipal" placeholder="20000" />
+    </div>
+    <div class="field-group">
+      <label for="amortAnnualRate">Annual Interest Rate (%):</label>
+      <input type="number" id="amortAnnualRate" step="0.01" placeholder="5.0" />
+    </div>
+    <div class="field-group">
+      <label for="amortYears">Term (Years):</label>
+      <input type="number" id="amortYears" placeholder="5" />
+    </div>
+    <button onclick="generateAmortization()">Generate Schedule</button>
+    <div class="result" id="resultAmortization"></div>
+  </div>
+
+  <!-- 6) ROI -->
+  <div id="roi" class="calculator-section">
+    <h2>Return on Investment (ROI)</h2>
+    <p><em>Calculate % gain/loss from an investment.</em></p>
+    <div class="field-group">
+      <label for="initialInvestment">Initial Investment:</label>
+      <input type="number" id="initialInvestment" placeholder="1000" />
+    </div>
+    <div class="field-group">
+      <label for="finalValue">Final Value:</label>
+      <input type="number" id="finalValue" placeholder="1500" />
+    </div>
+    <button onclick="calculateROI()">Calculate ROI</button>
+    <div class="result" id="resultROI"></div>
+  </div>
+
+  <!-- 7) Break-Even -->
+  <div id="breakEven" class="calculator-section">
+    <h2>Break-Even Point</h2>
+    <p><em>Units needed so total cost = total revenue.</em></p>
+    <div class="field-group">
+      <label for="fixedCosts">Fixed Costs:</label>
+      <input type="number" id="fixedCosts" placeholder="5000" />
+    </div>
+    <div class="field-group">
+      <label for="pricePerUnit">Price per Unit:</label>
+      <input type="number" id="pricePerUnit" placeholder="100" />
+    </div>
+    <div class="field-group">
+      <label for="variableCostPerUnit">Variable Cost per Unit:</label>
+      <input type="number" id="variableCostPerUnit" placeholder="60" />
+    </div>
+    <button onclick="calculateBreakEven()">Calculate Break-Even</button>
+    <div class="result" id="resultBreakEven"></div>
+  </div>
+
+  <!-- 8) Retirement (Monthly Contributions) -->
+  <div id="retirement" class="calculator-section">
+    <h2>Retirement (Monthly Contributions)</h2>
+    <p><em>Future value if contributing monthly at a certain rate.</em></p>
+    <div class="field-group">
+      <label for="monthlyContribution">Monthly Contribution:</label>
+      <input type="number" id="monthlyContribution" placeholder="500" />
+    </div>
+    <div class="field-group">
+      <label for="annualInterestRetire">Annual Interest Rate (%):</label>
+      <input type="number" id="annualInterestRetire" step="0.01" placeholder="6.0" />
+    </div>
+    <div class="field-group">
+      <label for="yearsRetire">Number of Years:</label>
+      <input type="number" id="yearsRetire" placeholder="20" />
+    </div>
+    <button onclick="calculateRetirement()">Calculate Future Value</button>
+    <div class="result" id="resultRetirement"></div>
+  </div>
+
+  <!-- 9) Loan-to-Value (LTV) -->
+  <div id="ltv" class="calculator-section">
+    <h2>Loan-to-Value (LTV)</h2>
+    <p><em>Loan amount vs. value of collateral/property.</em></p>
+    <div class="field-group">
+      <label for="loanAmountLTV">Loan Amount:</label>
+      <input type="number" id="loanAmountLTV" placeholder="200000" />
+    </div>
+    <div class="field-group">
+      <label for="assetValueLTV">Asset/Property Value:</label>
+      <input type="number" id="assetValueLTV" placeholder="250000" />
+    </div>
+    <button onclick="calculateLTV()">Calculate LTV</button>
+    <div class="result" id="resultLTV"></div>
+  </div>
+
+  <!-- 10) Debt-to-Income (DTI) -->
+  <div id="dti" class="calculator-section">
+    <h2>Debt-to-Income (DTI)</h2>
+    <p><em>Monthly debt vs. gross monthly income.</em></p>
+    <div class="field-group">
+      <label for="monthlyDebtDTI">Total Monthly Debt Payments:</label>
+      <input type="number" id="monthlyDebtDTI" placeholder="1500" />
+    </div>
+    <div class="field-group">
+      <label for="monthlyIncomeDTI">Monthly Gross Income:</label>
+      <input type="number" id="monthlyIncomeDTI" placeholder="5000" />
+    </div>
+    <button onclick="calculateDTI()">Calculate DTI</button>
+    <div class="result" id="resultDTI"></div>
+  </div>
+
+  <!-- 11) NPV -->
+  <div id="npv" class="calculator-section">
+    <h2>Net Present Value (NPV)</h2>
+    <p><em>Enter discount rate (annual %) & cash flows (comma separated).</em></p>
+    <div class="field-group">
+      <label for="discountRateNPV">Discount Rate (%):</label>
+      <input type="number" id="discountRateNPV" step="0.01" placeholder="10.0" />
+    </div>
+    <div class="field-group">
+      <label for="cashFlowsNPV">Cash Flows (comma separated):</label>
+      <textarea id="cashFlowsNPV" rows="3" placeholder="-1000, 200, 300, 500"></textarea>
+    </div>
+    <button onclick="calculateNPV()">Calculate NPV</button>
+    <div class="result" id="resultNPV"></div>
+  </div>
+
+  <!-- 12) IRR -->
+  <div id="irr" class="calculator-section">
+    <h2>Internal Rate of Return (IRR)</h2>
+    <p><em>Approx IRR for a series of cash flows (comma separated).</em></p>
+    <div class="field-group">
+      <label for="cashFlowsIRR">Cash Flows (comma separated):</label>
+      <textarea id="cashFlowsIRR" rows="3" placeholder="-1000, 200, 300, 500"></textarea>
+    </div>
+    <button onclick="calculateIRR()">Calculate IRR</button>
+    <div class="result" id="resultIRR"></div>
+  </div>
+
+  <!-- 13) DSCR -->
+  <div id="dscr" class="calculator-section">
+    <h2>Debt Service Coverage Ratio (DSCR)</h2>
+    <p><em>DSCR = Net Operating Income / Total Debt Service.</em></p>
+    <div class="field-group">
+      <label for="netOperatingIncomeDSCR">Net Operating Income (Annual):</label>
+      <input type="number" id="netOperatingIncomeDSCR" placeholder="60000" />
+    </div>
+    <div class="field-group">
+      <label for="annualDebtServiceDSCR">Annual Debt Service:</label>
+      <input type="number" id="annualDebtServiceDSCR" placeholder="40000" />
+    </div>
+    <button onclick="calculateDSCR()">Calculate DSCR</button>
+    <div class="result" id="resultDSCR"></div>
+  </div>
+
+  <!-- 14) EAR -->
+  <div id="ear" class="calculator-section">
+    <h2>Effective Annual Rate (EAR)</h2>
+    <p><em>Convert nominal rate & compounding periods into effective annual rate.</em></p>
+    <div class="field-group">
+      <label for="nominalRateEAR">Nominal Annual Rate (%):</label>
+      <input type="number" id="nominalRateEAR" step="0.01" placeholder="10.0" />
+    </div>
+    <div class="field-group">
+      <label for="compoundingPeriodsEAR">Compounding Periods/Year:</label>
+      <input type="number" id="compoundingPeriodsEAR" placeholder="12" />
+    </div>
+    <button onclick="calculateEAR()">Calculate EAR</button>
+    <div class="result" id="resultEAR"></div>
+  </div>
+
+  <!-- 15) Payback Period -->
+  <div id="payback" class="calculator-section">
+    <h2>Payback Period</h2>
+    <p><em>How long to recoup initial investment from subsequent cash flows.</em></p>
+    <div class="field-group">
+      <label for="cashFlowsPayback">Cash Flows (comma separated):</label>
+      <textarea id="cashFlowsPayback" rows="3" placeholder="-1000, 300, 300, 300, 300"></textarea>
+    </div>
+    <button onclick="calculatePayback()">Calculate Payback Period</button>
+    <div class="result" id="resultPayback"></div>
+  </div>
+
+  <!-- 16) WACC -->
+  <div id="wacc" class="calculator-section">
+    <h2>Weighted Average Cost of Capital (WACC)</h2>
+    <p><em>WACC = (E/V * Re) + (D/V * Rd * (1 - taxRate))</em></p>
+    <div class="field-group">
+      <label for="equityValueWACC">Equity Value (E):</label>
+      <input type="number" id="equityValueWACC" placeholder="500000" />
+    </div>
+    <div class="field-group">
+      <label for="debtValueWACC">Debt Value (D):</label>
+      <input type="number" id="debtValueWACC" placeholder="500000" />
+    </div>
+    <div class="field-group">
+      <label for="costOfEquityWACC">Cost of Equity (%):</label>
+      <input type="number" id="costOfEquityWACC" step="0.01" placeholder="12.0" />
+    </div>
+    <div class="field-group">
+      <label for="costOfDebtWACC">Cost of Debt (%):</label>
+      <input type="number" id="costOfDebtWACC" step="0.01" placeholder="6.0" />
+    </div>
+    <div class="field-group">
+      <label for="taxRateWACC">Tax Rate (%):</label>
+      <input type="number" id="taxRateWACC" step="0.01" placeholder="25.0" />
+    </div>
+    <button onclick="calculateWACC()">Calculate WACC</button>
+    <div class="result" id="resultWACC"></div>
+  </div>
+
+  <!-- 17) Bond Pricing -->
+  <div id="bondPrice" class="calculator-section">
+    <h2>Bond Pricing</h2>
+    <p><em>Given face value, coupon rate, market yield, and years to maturity.</em></p>
+    <div class="field-group">
+      <label for="faceValueBond">Face Value (Par):</label>
+      <input type="number" id="faceValueBond" placeholder="1000" />
+    </div>
+    <div class="field-group">
+      <label for="annualCouponBond">Annual Coupon Rate (%):</label>
+      <input type="number" id="annualCouponBond" step="0.01" placeholder="5.0" />
+    </div>
+    <div class="field-group">
+      <label for="marketYieldBond">Market Yield (%):</label>
+      <input type="number" id="marketYieldBond" step="0.01" placeholder="6.0" />
+    </div>
+    <div class="field-group">
+      <label for="yearsToMaturityBond">Years to Maturity:</label>
+      <input type="number" id="yearsToMaturityBond" placeholder="10" />
+    </div>
+    <button onclick="calculateBondPrice()">Calculate Bond Price</button>
+    <div class="result" id="resultBondPrice"></div>
+  </div>
+
+  <!-- 18) Bond YTM -->
+  <div id="bondYTM" class="calculator-section">
+    <h2>Yield to Maturity (YTM)</h2>
+    <p><em>Approximate YTM given price, coupon, face, maturity.</em></p>
+    <div class="field-group">
+      <label for="currentPriceYTM">Current Bond Price:</label>
+      <input type="number" id="currentPriceYTM" placeholder="950" />
+    </div>
+    <div class="field-group">
+      <label for="faceValueYTM">Face Value (Par):</label>
+      <input type="number" id="faceValueYTM" placeholder="1000" />
+    </div>
+    <div class="field-group">
+      <label for="annualCouponYTM">Annual Coupon Rate (% of Face):</label>
+      <input type="number" id="annualCouponYTM" step="0.01" placeholder="5.0" />
+    </div>
+    <div class="field-group">
+      <label for="yearsToMaturityYTM">Years to Maturity:</label>
+      <input type="number" id="yearsToMaturityYTM" placeholder="10" />
+    </div>
+    <button onclick="calculateBondYTM()">Calculate YTM</button>
+    <div class="result" id="resultBondYTM"></div>
+  </div>
+
+  <!-- 19) Mark-up & Margin -->
+  <div id="markupMargin" class="calculator-section">
+    <h2>Mark-up & Margin</h2>
+    <p><em>Given cost and selling price, find mark-up % and gross margin %.</em></p>
+    <div class="field-group">
+      <label for="costMarkUp">Cost per Unit:</label>
+      <input type="number" id="costMarkUp" placeholder="60" />
+    </div>
+    <div class="field-group">
+      <label for="priceMarkUp">Selling Price per Unit:</label>
+      <input type="number" id="priceMarkUp" placeholder="100" />
+    </div>
+    <button onclick="calculateMarkupMargin()">Calculate Mark-up &amp; Margin</button>
+    <div class="result" id="resultMarkUp"></div>
+  </div>
+
+  <!-- 20) Current Ratio & Quick Ratio -->
+  <div id="liquidityRatios" class="calculator-section">
+    <h2>Current Ratio & Quick Ratio</h2>
+    <p><em>Basic liquidity measures from the balance sheet.</em></p>
+    <div class="field-group">
+      <label for="currentAssets">Current Assets:</label>
+      <input type="number" id="currentAssets" placeholder="50000" />
+    </div>
+    <div class="field-group">
+      <label for="inventory">Inventory:</label>
+      <input type="number" id="inventory" placeholder="20000" />
+    </div>
+    <div class="field-group">
+      <label for="currentLiabilities">Current Liabilities:</label>
+      <input type="number" id="currentLiabilities" placeholder="30000" />
+    </div>
+    <button onclick="calculateCurrentQuickRatios()">Calculate Ratios</button>
+    <div class="result" id="resultLiquidityRatios"></div>
+  </div>
+
+  <!-- 21) EBITDA & Debt/EBITDA -->
+  <div id="ebitda" class="calculator-section">
+    <h2>EBITDA &amp; Debt/EBITDA</h2>
+    <p><em>Enter revenues, costs, D&amp;A, interest, taxes, total debt, etc.</em></p>
+    <div class="field-group">
+      <label for="revenueEBITDA">Revenue (Annual):</label>
+      <input type="number" id="revenueEBITDA" placeholder="200000" />
+    </div>
+    <div class="field-group">
+      <label for="operatingCostEBITDA">Operating Costs (excl. D&amp;A):</label>
+      <input type="number" id="operatingCostEBITDA" placeholder="120000" />
+    </div>
+    <div class="field-group">
+      <label for="depAmortEBITDA">Depreciation &amp; Amortization:</label>
+      <input type="number" id="depAmortEBITDA" placeholder="10000" />
+    </div>
+    <div class="field-group">
+      <label for="interestEBITDA">Interest Expense:</label>
+      <input type="number" id="interestEBITDA" placeholder="5000" />
+    </div>
+    <div class="field-group">
+      <label for="taxesEBITDA">Taxes:</label>
+      <input type="number" id="taxesEBITDA" placeholder="10000" />
+    </div>
+    <div class="field-group">
+      <label for="totalDebtEBITDA">Total Debt:</label>
+      <input type="number" id="totalDebtEBITDA" placeholder="200000" />
+    </div>
+    <button onclick="calculateEBITDA()">Calculate EBITDA &amp; Debt/EBITDA</button>
+    <div class="result" id="resultEBITDA"></div>
+  </div>
+
+  <!-- 23) Days Sales Outstanding (DSO) -->
+  <div id="dso" class="calculator-section">
+    <h2>Days Sales Outstanding (DSO)</h2>
+    <p><em>DSO = (Average Accounts Receivable / Total Credit Sales) * 365.</em></p>
+    <div class="field-group">
+      <label for="avgReceivableDSO">Average A/R:</label>
+      <input type="number" id="avgReceivableDSO" placeholder="50000" />
+    </div>
+    <div class="field-group">
+      <label for="creditSalesDSO">Total Credit Sales (Annual):</label>
+      <input type="number" id="creditSalesDSO" placeholder="600000" />
+    </div>
+    <button onclick="calculateDSO()">Calculate DSO</button>
+    <div class="result" id="resultDSO"></div>
+  </div>
+
+  <!-- 24) Days Payable Outstanding (DPO) -->
+  <div id="dpo" class="calculator-section">
+    <h2>Days Payable Outstanding (DPO)</h2>
+    <p><em>DPO = (Average Accounts Payable / Cost of Goods Sold) * 365.</em></p>
+    <div class="field-group">
+      <label for="avgPayableDPO">Average A/P:</label>
+      <input type="number" id="avgPayableDPO" placeholder="40000" />
+    </div>
+    <div class="field-group">
+      <label for="cogsDPO">Cost of Goods Sold (Annual):</label>
+      <input type="number" id="cogsDPO" placeholder="300000" />
+    </div>
+    <button onclick="calculateDPO()">Calculate DPO</button>
+    <div class="result" id="resultDPO"></div>
+  </div>
+
+  <!-- 26) Treasury Bill Discount Yield -->
+  <div id="tBillYield" class="calculator-section">
+    <h2>Treasury Bill Discount Yield</h2>
+    <p><em>Discount yield = (Face Value - Purchase Price) / Face Value * (360 / Days)</em></p>
+    <div class="field-group">
+      <label for="tBillFace">Face Value:</label>
+      <input type="number" id="tBillFace" placeholder="100000" />
+    </div>
+    <div class="field-group">
+      <label for="tBillPrice">Purchase Price:</label>
+      <input type="number" id="tBillPrice" placeholder="98000" />
+    </div>
+    <div class="field-group">
+      <label for="tBillDays">Days to Maturity:</label>
+      <input type="number" id="tBillDays" placeholder="90" />
+    </div>
+    <button onclick="calculateTBillYield()">Calculate Discount Yield</button>
+    <div class="result" id="resultTBillYield"></div>
+  </div>
+
+
+  <script>
+    /*****************************************************************
+     * Show/Hide Calculators Based on Dropdown (Categories)
+     *****************************************************************/
+    const allCalculatorIDs = [
+      "currencyConversion","inflation","compoundInterest","mortgage","amortization","roi","breakEven",
+      "retirement","ltv","dti","npv","irr","dscr","ear","payback","wacc","bondPrice","bondYTM",
+      "markupMargin","liquidityRatios","ebitda","simpleInterest","dso","dpo","tBillYield",
+      "weightedLoanRate","weightedLoanMaturity"
+    ];
+    const calcSelectEl = document.getElementById("calcSelect");
+
+    calcSelectEl.addEventListener("change", function() {
+      // Hide all calculators
+      allCalculatorIDs.forEach(id => {
+        document.getElementById(id).style.display = "none";
+      });
+      // Show the chosen one (if any)
+      const selected = this.value;
+      if (selected && document.getElementById(selected)) {
+        document.getElementById(selected).style.display = "block";
+      }
+    });
+
+
+    /*****************************************************************
+     * Weighted Average Interest Rate (Multiple Loans) - Dynamic Rows
+     *****************************************************************/
+    function addLoanRateRow() {
+      const tableBody = document.getElementById("loanRateTable").querySelector("tbody");
+      const row = document.createElement("tr");
+
+      const principalCell = document.createElement("td");
+      const principalInput = document.createElement("input");
+      principalInput.type = "number";
+      principalInput.placeholder = "Principal";
+      principalCell.appendChild(principalInput);
+
+      const rateCell = document.createElement("td");
+      const rateInput = document.createElement("input");
+      rateInput.type = "number";
+      rateInput.placeholder = "Interest %";
+      rateCell.appendChild(rateInput);
+
+      const removeCell = document.createElement("td");
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "X";
+      removeBtn.className = "remove-row-btn";
+      removeBtn.addEventListener("click", () => {
+        row.remove();
+      });
+      removeCell.appendChild(removeBtn);
+
+      row.appendChild(principalCell);
+      row.appendChild(rateCell);
+      row.appendChild(removeCell);
+
+      tableBody.appendChild(row);
+    }
+
+    function calculateWeightedLoanRate() {
+      const tableBody = document.getElementById("loanRateTable").querySelector("tbody");
+      const rows = tableBody.querySelectorAll("tr");
+      let totalPrincipal = 0;
+      let weightedSum = 0;
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll("input");
+        const principal = parseFloat(inputs[0].value) || 0;
+        const rate = parseFloat(inputs[1].value) || 0;
+        totalPrincipal += principal;
+        weightedSum += (principal * rate);
+      });
+
+      const resultEl = document.getElementById("resultWeightedLoanRate");
+      if (totalPrincipal === 0) {
+        resultEl.innerText = "Total principal is 0 or no loans entered.";
+        return;
+      }
+      const weightedRate = weightedSum / totalPrincipal;
+      resultEl.innerText = `Weighted Avg Interest Rate: ${weightedRate.toFixed(2)}%`;
+    }
+
+    /*****************************************************************
+     * Weighted Average Maturity (Multiple Loans) - Dynamic Rows
+     *****************************************************************/
+    function addLoanMaturityRow() {
+      const tableBody = document.getElementById("loanMaturityTable").querySelector("tbody");
+      const row = document.createElement("tr");
+
+      const principalCell = document.createElement("td");
+      const principalInput = document.createElement("input");
+      principalInput.type = "number";
+      principalInput.placeholder = "Principal";
+      principalCell.appendChild(principalInput);
+
+      const maturityCell = document.createElement("td");
+      const maturityInput = document.createElement("input");
+      maturityInput.type = "number";
+      maturityInput.placeholder = "Years";
+      maturityCell.appendChild(maturityInput);
+
+      const removeCell = document.createElement("td");
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "X";
+      removeBtn.className = "remove-row-btn";
+      removeBtn.addEventListener("click", () => {
+        row.remove();
+      });
+      removeCell.appendChild(removeBtn);
+
+      row.appendChild(principalCell);
+      row.appendChild(maturityCell);
+      row.appendChild(removeCell);
+
+      tableBody.appendChild(row);
+    }
+
+    function calculateWeightedLoanMaturity() {
+      const tableBody = document.getElementById("loanMaturityTable").querySelector("tbody");
+      const rows = tableBody.querySelectorAll("tr");
+      let totalPrincipal = 0;
+      let weightedSum = 0; // sum of principal * maturity
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll("input");
+        const principal = parseFloat(inputs[0].value) || 0;
+        const maturity = parseFloat(inputs[1].value) || 0;
+        totalPrincipal += principal;
+        weightedSum += (principal * maturity);
+      });
+
+      const resultEl = document.getElementById("resultWeightedLoanMaturity");
+      if (totalPrincipal === 0) {
+        resultEl.innerText = "Total principal is 0 or no loans entered.";
+        return;
+      }
+      const wam = weightedSum / totalPrincipal;
+      resultEl.innerText = `Weighted Avg Maturity: ${wam.toFixed(2)} years`;
+    }
+
+    /*************************************************************************/
+    /* 1) CURRENCY CONVERSION                                                */
+    /*************************************************************************/
+    const exchangeRates = {
+      "USD": 1.0,
+      "EUR": 0.94,
+      "GBP": 0.83
+    };
+
+    function convertCurrency() {
+      const amount = parseFloat(document.getElementById("amountCurrencyA").value) || 0;
+      const fromCurrency = document.getElementById("selectCurrencyA").value;
+      const toCurrency = document.getElementById("selectCurrencyB").value;
+
+      const amountInUSD = amount / exchangeRates[fromCurrency];
+      const converted = amountInUSD * exchangeRates[toCurrency];
+
+      const resultEl = document.getElementById("resultCurrencyConversion");
+      resultEl.innerText = `${amount.toFixed(2)} ${fromCurrency} = ${converted.toFixed(2)} ${toCurrency}`;
+    }
+
+    /*************************************************************************/
+    /* 2) INFLATION CALCULATOR                                               */
+    /*************************************************************************/
+    function calculateInflation() {
+      const amount = parseFloat(document.getElementById("inflationAmount").value) || 0;
+      const rate = parseFloat(document.getElementById("inflationRate").value) / 100 || 0;
+      const years = parseFloat(document.getElementById("inflationYears").value) || 0;
+
+      const futureValue = amount * Math.pow((1 + rate), years);
+      const resultEl = document.getElementById("resultInflation");
+      resultEl.innerText = `After ${years} year(s), $${amount.toFixed(2)} ≈ $${futureValue.toFixed(2)} at ${(rate*100).toFixed(2)}% inflation.`;
+    }
+
+    /*************************************************************************/
+    /* 3) COMPOUND INTEREST                                                  */
+    /*************************************************************************/
+    function calculateCompoundInterest() {
+      const principal = parseFloat(document.getElementById("principal").value) || 0;
+      const annualRate = parseFloat(document.getElementById("annualInterestRate").value) / 100 || 0;
+      const timesPerYear = parseFloat(document.getElementById("compoundTimes").value) || 1;
+      const years = parseFloat(document.getElementById("years").value) || 0;
+
+      const finalAmount = principal * Math.pow((1 + annualRate / timesPerYear), timesPerYear * years);
+      document.getElementById("resultCompound").innerText = 
+        `Final Amount after ${years} year(s): $${finalAmount.toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 4) MORTGAGE PAYMENT                                                   */
+    /*************************************************************************/
+    function calculateMortgage() {
+      const principal = parseFloat(document.getElementById("mortgagePrincipal").value) || 0;
+      const annualRate = parseFloat(document.getElementById("mortgageAnnualRate").value) / 100 || 0;
+      const years = parseFloat(document.getElementById("mortgageYears").value) || 0;
+
+      const monthlyRate = annualRate / 12;
+      const totalMonths = years * 12;
+      let monthlyPayment = 0;
+
+      if (monthlyRate === 0) {
+        monthlyPayment = principal / totalMonths;
+      } else {
+        monthlyPayment = (monthlyRate * principal) / (1 - Math.pow(1 + monthlyRate, -totalMonths));
+      }
+      const totalPayment = monthlyPayment * totalMonths;
+      const totalInterest = totalPayment - principal;
+
+      document.getElementById("resultMortgage").innerText = 
+        `Monthly Payment: $${monthlyPayment.toFixed(2)}\n` +
+        `Total Payments: $${totalPayment.toFixed(2)}\n` +
+        `Total Interest: $${totalInterest.toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 5) LOAN AMORTIZATION SCHEDULE                                         */
+    /*************************************************************************/
+    function generateAmortization() {
+      const principal = parseFloat(document.getElementById("amortPrincipal").value) || 0;
+      const annualRate = parseFloat(document.getElementById("amortAnnualRate").value) / 100 || 0;
+      const years = parseFloat(document.getElementById("amortYears").value) || 0;
+
+      const monthlyRate = annualRate / 12;
+      const totalMonths = years * 12;
+
+      let monthlyPayment = 0;
+      if (monthlyRate === 0) {
+        monthlyPayment = principal / totalMonths;
+      } else {
+        monthlyPayment = (monthlyRate * principal) / (1 - Math.pow(1 + monthlyRate, -totalMonths));
+      }
+
+      let scheduleHTML = "<table>";
+      scheduleHTML += "<tr><th>Month</th><th>Payment</th><th>Interest</th><th>Principal</th><th>Remaining</th></tr>";
+      let currentBalance = principal;
+
+      for (let m = 1; m <= totalMonths; m++) {
+        const interest = currentBalance * monthlyRate;
+        let principalPaid = monthlyPayment - interest;
+        if (principalPaid > currentBalance) {
+          principalPaid = currentBalance;
+        }
+
+        scheduleHTML += `<tr>
+          <td>${m}</td>
+          <td>${monthlyPayment.toFixed(2)}</td>
+          <td>${interest.toFixed(2)}</td>
+          <td>${principalPaid.toFixed(2)}</td>
+          <td>${(currentBalance - principalPaid).toFixed(2)}</td>
+        </tr>`;
+
+        currentBalance -= principalPaid;
+        if (currentBalance < 0) currentBalance = 0;
+      }
+      scheduleHTML += "</table>";
+
+      const totalPaid = monthlyPayment * totalMonths;
+      const totalInterest = totalPaid - principal;
+
+      document.getElementById("resultAmortization").innerHTML =
+        `Monthly Payment: $${monthlyPayment.toFixed(2)}<br/>
+         Total Paid: $${totalPaid.toFixed(2)}<br/>
+         Total Interest: $${totalInterest.toFixed(2)}<br/><br/>
+         Amortization Schedule:\n\n${scheduleHTML}`;
+    }
+
+    /*************************************************************************/
+    /* 6) RETURN ON INVESTMENT (ROI)                                         */
+    /*************************************************************************/
+    function calculateROI() {
+      const initial = parseFloat(document.getElementById("initialInvestment").value) || 0;
+      const finalVal = parseFloat(document.getElementById("finalValue").value) || 0;
+
+      if (initial === 0) {
+        document.getElementById("resultROI").innerText = "Initial investment cannot be zero.";
+        return;
+      }
+      const roi = ((finalVal - initial) / initial) * 100;
+      document.getElementById("resultROI").innerText = 
+        `ROI: ${roi.toFixed(2)}%\nGain/Loss: $${(finalVal - initial).toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 7) BREAK-EVEN POINT                                                   */
+    /*************************************************************************/
+    function calculateBreakEven() {
+      const fixedCosts = parseFloat(document.getElementById("fixedCosts").value) || 0;
+      const price = parseFloat(document.getElementById("pricePerUnit").value) || 0;
+      const variable = parseFloat(document.getElementById("variableCostPerUnit").value) || 0;
+
+      if (price <= variable) {
+        document.getElementById("resultBreakEven").innerText = 
+          "Price must exceed variable cost to break even.";
+        return;
+      }
+      const breakEvenUnits = fixedCosts / (price - variable);
+      document.getElementById("resultBreakEven").innerText = 
+        `Break-Even Point: ${breakEvenUnits.toFixed(2)} units`;
+    }
+
+    /*************************************************************************/
+    /* 8) RETIREMENT (MONTHLY CONTRIBUTIONS)                                 */
+    /*************************************************************************/
+    function calculateRetirement() {
+      const monthly = parseFloat(document.getElementById("monthlyContribution").value) || 0;
+      const annualInterest = parseFloat(document.getElementById("annualInterestRetire").value) / 100 || 0;
+      const years = parseFloat(document.getElementById("yearsRetire").value) || 0;
+
+      const monthlyRate = annualInterest / 12;
+      const totalMonths = years * 12;
+
+      if (monthlyRate === 0) {
+        const noInterestFV = monthly * totalMonths;
+        document.getElementById("resultRetirement").innerText =
+          `Future Value: $${noInterestFV.toFixed(2)} (No interest)`;
+        return;
+      }
+      const futureValue =
+        monthly * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate);
+      document.getElementById("resultRetirement").innerText =
+        `Future Value: $${futureValue.toFixed(2)}\n` +
+        `Assumes monthly compounding at ${(annualInterest * 100).toFixed(2)}% annual interest.`;
+    }
+
+    /*************************************************************************/
+    /* 9) LOAN-TO-VALUE (LTV) RATIO                                          */
+    /*************************************************************************/
+    function calculateLTV() {
+      const loanAmt = parseFloat(document.getElementById("loanAmountLTV").value) || 0;
+      const assetVal = parseFloat(document.getElementById("assetValueLTV").value) || 0;
+
+      if (assetVal === 0) {
+        document.getElementById("resultLTV").innerText = "Asset value cannot be zero.";
+        return;
+      }
+      const ltv = (loanAmt / assetVal) * 100;
+      document.getElementById("resultLTV").innerText = 
+        `LTV Ratio: ${ltv.toFixed(2)}%`;
+    }
+
+    /*************************************************************************/
+    /* 10) DEBT-TO-INCOME (DTI) RATIO                                        */
+    /*************************************************************************/
+    function calculateDTI() {
+      const debt = parseFloat(document.getElementById("monthlyDebtDTI").value) || 0;
+      const income = parseFloat(document.getElementById("monthlyIncomeDTI").value) || 0;
+
+      if (income === 0) {
+        document.getElementById("resultDTI").innerText = 
+          "Monthly gross income cannot be zero.";
+        return;
+      }
+      const dti = (debt / income) * 100;
+      document.getElementById("resultDTI").innerText = `DTI Ratio: ${dti.toFixed(2)}%`;
+    }
+
+    /*************************************************************************/
+    /* 11) NET PRESENT VALUE (NPV)                                           */
+    /*************************************************************************/
+    function calculateNPV() {
+      const rate = parseFloat(document.getElementById("discountRateNPV").value) / 100 || 0;
+      const cashFlowsStr = document.getElementById("cashFlowsNPV").value.trim();
+
+      if (!cashFlowsStr) {
+        document.getElementById("resultNPV").innerText = "Please enter cash flows.";
+        return;
+      }
+      const cashFlows = cashFlowsStr.split(",").map(v => parseFloat(v.trim()) || 0);
+
+      let npv = 0;
+      for (let t = 0; t < cashFlows.length; t++) {
+        npv += cashFlows[t] / Math.pow((1 + rate), t);
+      }
+      document.getElementById("resultNPV").innerText = `NPV: $${npv.toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 12) INTERNAL RATE OF RETURN (IRR)                                     */
+    /*************************************************************************/
+    function calculateIRR() {
+      const cashFlowsStr = document.getElementById("cashFlowsIRR").value.trim();
+      const resultEl = document.getElementById("resultIRR");
+      if (!cashFlowsStr) {
+        resultEl.innerText = "Please enter cash flows.";
+        return;
+      }
+      const cashFlows = cashFlowsStr.split(",").map(v => parseFloat(v.trim()) || 0);
+
+      // NPV function
+      function npv(rate) {
+        let total = 0;
+        for (let t = 0; t < cashFlows.length; t++) {
+          total += cashFlows[t] / Math.pow((1 + rate), t);
+        }
+        return total;
+      }
+      if (cashFlows.every(cf => cf >= 0)) {
+        resultEl.innerText = "All cash flows non-negative; IRR is undefined.";
+        return;
+      }
+
+      let lower = -0.9999, upper = 1.0, guess = 0;
+      const tolerance = 1e-7, iterations = 100;
+
+      for (let i = 0; i < iterations; i++) {
+        guess = (lower + upper) / 2;
+        const val = npv(guess);
+        if (Math.abs(val) < tolerance) break;
+        if (val > 0) {
+          lower = guess;
+        } else {
+          upper = guess;
+        }
+      }
+      const irrPercent = guess * 100;
+      resultEl.innerText = `Approx. IRR: ${irrPercent.toFixed(4)}%`;
+    }
+
+    /*************************************************************************/
+    /* 13) DEBT SERVICE COVERAGE RATIO (DSCR)                                */
+    /*************************************************************************/
+    function calculateDSCR() {
+      const noi = parseFloat(document.getElementById("netOperatingIncomeDSCR").value) || 0;
+      const debtService = parseFloat(document.getElementById("annualDebtServiceDSCR").value) || 0;
+
+      if (debtService === 0) {
+        document.getElementById("resultDSCR").innerText = "Debt Service cannot be zero.";
+        return;
+      }
+      const dscr = noi / debtService;
+      document.getElementById("resultDSCR").innerText = `DSCR: ${dscr.toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 14) EFFECTIVE ANNUAL RATE (EAR)                                       */
+    /*************************************************************************/
+    function calculateEAR() {
+      const nominal = parseFloat(document.getElementById("nominalRateEAR").value) / 100 || 0;
+      const periods = parseFloat(document.getElementById("compoundingPeriodsEAR").value) || 1;
+
+      if (periods <= 0) {
+        document.getElementById("resultEAR").innerText = "Compounding periods must be > 0.";
+        return;
+      }
+      const ear = Math.pow((1 + (nominal / periods)), periods) - 1;
+      document.getElementById("resultEAR").innerText = 
+        `Effective Annual Rate: ${(ear * 100).toFixed(4)}%`;
+    }
+
+    /*************************************************************************/
+    /* 15) PAYBACK PERIOD                                                    */
+    /*************************************************************************/
+    function calculatePayback() {
+      const flowsStr = document.getElementById("cashFlowsPayback").value.trim();
+      const resultEl = document.getElementById("resultPayback");
+
+      if (!flowsStr) {
+        resultEl.innerText = "Please enter cash flows.";
+        return;
+      }
+      const flows = flowsStr.split(",").map(v => parseFloat(v.trim()) || 0);
+      let cumulative = 0;
+      let payback = -1;
+
+      for (let i = 0; i < flows.length; i++) {
+        cumulative += flows[i];
+        if (cumulative >= 0) {
+          // partial period calculation
+          const prevCumulative = cumulative - flows[i];
+          const remainder = 0 - prevCumulative;
+          const fraction = remainder / flows[i];
+          payback = (i - 1) + fraction;
+          break;
+        }
+      }
+      if (payback === -1) {
+        resultEl.innerText = "Investment not fully recovered in given flows.";
+      } else {
+        resultEl.innerText = 
+          `Payback Period: ~${(payback + 1).toFixed(2)} year(s).`;
+      }
+    }
+
+    /*************************************************************************/
+    /* 16) WACC                                                              */
+    /*************************************************************************/
+    function calculateWACC() {
+      const E = parseFloat(document.getElementById("equityValueWACC").value) || 0;
+      const D = parseFloat(document.getElementById("debtValueWACC").value) || 0;
+      const Re = parseFloat(document.getElementById("costOfEquityWACC").value) / 100 || 0;
+      const Rd = parseFloat(document.getElementById("costOfDebtWACC").value) / 100 || 0;
+      const tax = parseFloat(document.getElementById("taxRateWACC").value) / 100 || 0;
+      const V = E + D;
+      if (V === 0) {
+        document.getElementById("resultWACC").innerText = "Equity + Debt cannot be zero.";
+        return;
+      }
+      const wacc = (E / V) * Re + (D / V) * Rd * (1 - tax);
+      document.getElementById("resultWACC").innerText = 
+        `WACC: ${(wacc * 100).toFixed(2)}%`;
+    }
+
+    /*************************************************************************/
+    /* 17) Bond Pricing                                                      */
+    /*************************************************************************/
+    function calculateBondPrice() {
+      const faceValue = parseFloat(document.getElementById("faceValueBond").value) || 0;
+      const couponRate = parseFloat(document.getElementById("annualCouponBond").value) / 100 || 0;
+      const marketYield = parseFloat(document.getElementById("marketYieldBond").value) / 100 || 0;
+      const years = parseFloat(document.getElementById("yearsToMaturityBond").value) || 0;
+
+      const coupon = faceValue * couponRate;
+      let price = 0;
+      for (let t = 1; t <= years; t++) {
+        price += coupon / Math.pow((1 + marketYield), t);
+      }
+      price += faceValue / Math.pow((1 + marketYield), years);
+
+      document.getElementById("resultBondPrice").innerText = 
+        `Bond Price: $${price.toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 18) YIELD TO MATURITY (YTM)                                           */
+    /*************************************************************************/
+    function calculateBondYTM() {
+      const currentPrice = parseFloat(document.getElementById("currentPriceYTM").value) || 0;
+      const faceValue = parseFloat(document.getElementById("faceValueYTM").value) || 0;
+      const couponRate = parseFloat(document.getElementById("annualCouponYTM").value) / 100 || 0;
+      const years = parseFloat(document.getElementById("yearsToMaturityYTM").value) || 0;
+
+      if (currentPrice <= 0) {
+        document.getElementById("resultBondYTM").innerText = "Current bond price must be > 0.";
+        return;
+      }
+      const coupon = faceValue * couponRate;
+
+      function bondPriceAtYield(yld) {
+        let pv = 0;
+        for (let t = 1; t <= years; t++) {
+          pv += coupon / Math.pow(1 + yld, t);
+        }
+        pv += faceValue / Math.pow(1 + yld, years);
+        return pv;
+      }
+
+      let lower = 0.0, upper = 1.0, guess = 0;
+      const iterations = 100, tolerance = 1e-7;
+
+      for (let i = 0; i < iterations; i++) {
+        guess = (lower + upper) / 2;
+        const trialPrice = bondPriceAtYield(guess);
+        if (Math.abs(trialPrice - currentPrice) < tolerance) break;
+        if (trialPrice > currentPrice) {
+          lower = guess;
+        } else {
+          upper = guess;
+        }
+      }
+      const ytmPct = guess * 100;
+      document.getElementById("resultBondYTM").innerText = 
+        `Approx. YTM: ${ytmPct.toFixed(4)}%`;
+    }
+
+    /*************************************************************************/
+    /* 19) MARK-UP & MARGIN                                                  */
+    /*************************************************************************/
+    function calculateMarkupMargin() {
+      const cost = parseFloat(document.getElementById("costMarkUp").value) || 0;
+      const price = parseFloat(document.getElementById("priceMarkUp").value) || 0;
+
+      if (cost <= 0 || price <= 0) {
+        document.getElementById("resultMarkUp").innerText = 
+          "Cost and price must be > 0.";
+        return;
+      }
+      const markupPct = ((price - cost) / cost) * 100;
+      const marginPct = ((price - cost) / price) * 100;
+      document.getElementById("resultMarkUp").innerText =
+        `Mark-up: ${markupPct.toFixed(2)}%\nMargin: ${marginPct.toFixed(2)}%`;
+    }
+
+    /*************************************************************************/
+    /* 20) CURRENT RATIO & QUICK RATIO                                       */
+    /*************************************************************************/
+    function calculateCurrentQuickRatios() {
+      const currentAssets = parseFloat(document.getElementById("currentAssets").value) || 0;
+      const inventory = parseFloat(document.getElementById("inventory").value) || 0;
+      const currentLiabilities = parseFloat(document.getElementById("currentLiabilities").value) || 0;
+
+      if (currentLiabilities === 0) {
+        document.getElementById("resultLiquidityRatios").innerText = 
+          "Current Liabilities cannot be zero.";
+        return;
+      }
+      const currentRatio = currentAssets / currentLiabilities;
+      const quickRatio = (currentAssets - inventory) / currentLiabilities;
+
+      document.getElementById("resultLiquidityRatios").innerText =
+        `Current Ratio: ${currentRatio.toFixed(2)}\nQuick Ratio: ${quickRatio.toFixed(2)}`;
+    }
+
+    /*************************************************************************/
+    /* 21) EBITDA & DEBT/EBITDA                                              */
+    /*************************************************************************/
+    function calculateEBITDA() {
+      const revenue = parseFloat(document.getElementById("revenueEBITDA").value) || 0;
+      const opCosts = parseFloat(document.getElementById("operatingCostEBITDA").value) || 0;
+      const depAmort = parseFloat(document.getElementById("depAmortEBITDA").value) || 0;
+      const interest = parseFloat(document.getElementById("interestEBITDA").value) || 0;
+      const taxes = parseFloat(document.getElementById("taxesEBITDA").value) || 0;
+      const totalDebt = parseFloat(document.getElementById("totalDebtEBITDA").value) || 0;
+
+      // Net Income = revenue - opCosts - depAmort - interest - taxes
+      // EBITDA = Net Income + interest + taxes + depAmort
+      const netIncome = revenue - opCosts - depAmort - interest - taxes;
+      const ebitda = netIncome + interest + taxes + depAmort;
+
+      let resultText = `EBITDA: $${ebitda.toFixed(2)}\n`;
+      if (ebitda === 0) {
+        resultText += "Debt/EBITDA: Not defined (EBITDA is 0).";
+      } else {
+        const ratio = totalDebt / ebitda;
+        resultText += `Debt/EBITDA: ${ratio.toFixed(2)}`;
+      }
+      document.getElementById("resultEBITDA").innerText = resultText;
+    }
+
+    /*************************************************************************/
+    /* 23) DAYS SALES OUTSTANDING (DSO)                                      */
+    /*************************************************************************/
+    function calculateDSO() {
+      const avgAR = parseFloat(document.getElementById("avgReceivableDSO").value) || 0;
+      const creditSales = parseFloat(document.getElementById("creditSalesDSO").value) || 0;
+
+      if (creditSales === 0) {
+        document.getElementById("resultDSO").innerText = "Credit sales cannot be zero.";
+        return;
+      }
+      const dso = (avgAR / creditSales) * 365;
+      document.getElementById("resultDSO").innerText = `DSO: ${dso.toFixed(2)} days`;
+    }
+
+    /*************************************************************************/
+    /* 24) DAYS PAYABLE OUTSTANDING (DPO)                                    */
+    /*************************************************************************/
+    function calculateDPO() {
+      const avgAP = parseFloat(document.getElementById("avgPayableDPO").value) || 0;
+      const cogs = parseFloat(document.getElementById("cogsDPO").value) || 0;
+
+      if (cogs === 0) {
+        document.getElementById("resultDPO").innerText = "COGS cannot be zero.";
+        return;
+      }
+      const dpo = (avgAP / cogs) * 365;
+      document.getElementById("resultDPO").innerText = `DPO: ${dpo.toFixed(2)} days`;
+    }
+
+    /*************************************************************************/
+    /* 26) TREASURY BILL DISCOUNT YIELD                                      */
+    /*************************************************************************/
+    function calculateTBillYield() {
+      const face = parseFloat(document.getElementById("tBillFace").value) || 0;
+      const price = parseFloat(document.getElementById("tBillPrice").value) || 0;
+      const days = parseFloat(document.getElementById("tBillDays").value) || 0;
+      const resultEl = document.getElementById("resultTBillYield");
+
+      if (face <= 0 || price <= 0 || days <= 0) {
+        resultEl.innerText = "Invalid T-bill inputs (must be > 0).";
+        return;
+      }
+      const discountYield = ((face - price) / face) * (360 / days) * 100;
+      resultEl.innerText = `Discount Yield: ${discountYield.toFixed(3)}%`;
+    }
+  </script>
+
+</body>
+</html>
